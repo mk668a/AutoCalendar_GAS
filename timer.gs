@@ -1,6 +1,6 @@
 //Slackのアクセストークン
 // ファイル -> プロジェクトのプロパティ -> スクリプトのプロパティ で設定
-//SLACK_ACCESS_TOKEN = "xoxb-596777847489-689703624197-4a0gnwxr1uQ2L8RLUZ8oM7DS";
+//SLACK_ACCESS_TOKEN = "";
 
 //出勤/退勤/時間をspledsheetに残す
 function checkDate() {
@@ -34,7 +34,7 @@ function doPost(e) {
   var bot_name = "timer";
   var bot_icon = "https://dl.dropboxusercontent.com/s/fr80p23peufksxu/alarm-clock.png";
   //Outgoing WebHooksのTOKENをここにコピペ
-  var verify_token = "KGQSd2kinKttmBQ8inYADLbj";
+  var verify_token = "";
   var post_text = e.parameter.text;
   var date_time;
   var state; //出勤か退勤か
@@ -88,7 +88,7 @@ function doPost(e) {
 //スプレに記載
 function getAttendance(e) {
   // var ss = SpreadsheetApp.openByUrl('スプレッドシートのURL');
-  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1x20Ehlq7Pu3XZhA0mOv9UbIQ4NYE3aceKRzDFLvJNqc/edit?usp=sharing');
+  var ss = SpreadsheetApp.openByUrl('');
   var sheet = ss.getSheets()[0];
 
   //最終列の取得

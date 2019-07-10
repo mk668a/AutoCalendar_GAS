@@ -1,7 +1,7 @@
 /* 指定月のカレンダーからイベントを取得する */
 function addTaskEvents() {
 
-  var myCal = CalendarApp.getCalendarById('8vqlsntrun84dk66vm1n3u1rao@group.calendar.google.com'); //カレンダーIDでカレンダーを取得
+  var myCal = CalendarApp.getCalendarById(''); //カレンダーIDでカレンダーを取得
   var mySheet = SpreadsheetApp.getActiveSheet(); //シートを取得
   var dat = mySheet.getDataRange().getValues(); //シートデータを取得
 

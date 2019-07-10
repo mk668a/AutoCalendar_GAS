@@ -6,9 +6,9 @@ function sendMailGoogleForm() {
  //------------------------------------------------------------
 
  // 件名、本文、フッター
- var subject = "[かまぼこハウスのご利用申し込みがありました。]";
+ var subject = "[ご利用申し込みがありました。]";
  var body
- = "かまぼこハウスのご利用申し込みがありました。\n\n"
+ = "ご利用申し込みがありました。\n\n"
  + "------------------------------------------------------------\n";
  var footer
  = "------------------------------------------------------------\n\n"
@@ -20,8 +20,8 @@ function sendMailGoogleForm() {
 
 
  // オプションメール送信先
- var admin = "kamabokosfc@gmail.com"; // 管理者（必須）
- var sendername = "かまぼこハウス";//送信者名（必須）
+ var admin = "@gmail.com"; // 管理者（必須）
+ var sendername = "";//送信者名（必須）
  var cc = ""; // Cc:
  var bcc = admin; // Bcc:
  var reply = admin; // Reply-To:

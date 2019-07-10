@@ -1,7 +1,7 @@
 /* セルが変更されたら実行してカレンダーのイベント名に【完了】を追加 */
 function changeStatus(){
 
-  var myCal = CalendarApp.getCalendarById('8vqlsntrun84dk66vm1n3u1rao@group.calendar.google.com'); //カレンダーIDでカレンダーを取得
+  var myCal = CalendarApp.getCalendarById(''); //カレンダーIDでカレンダーを取得
   var mySheet = SpreadsheetApp.getActiveSheet(); //シートを取得
   var myCell = mySheet.getActiveCell(); //アクティブセルを取得
 
