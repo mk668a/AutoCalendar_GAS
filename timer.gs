@@ -1,12 +1,10 @@
 //Slackのアクセストークン
-// ファイル -> プロジェクトのプロパティ -> スクリプトのプロパティ で設定
-//SLACK_ACCESS_TOKEN = "";
+//SLACK_ACCESS_TOKEN = "xoxb-596777847489-689703624197-onugA1QctmFTwxriH1BBtOxB";
 
 //出勤/退勤/時間をspledsheetに残す
 function checkDate() {
   //日付を取得
   var d = new Date();
-
   //今日の日付のデータを取得する(ddを使いシートの日付を取得)
   var daily = Utilities.formatDate(d, "JST", "dd");
   //もし頭に0がついてしまう場合0は消す
@@ -33,8 +31,7 @@ function doPost(e) {
   var token = PropertiesService.getScriptProperties().getProperty('SLACK_ACCESS_TOKEN');
   var bot_name = "timer";
   var bot_icon = "https://dl.dropboxusercontent.com/s/fr80p23peufksxu/alarm-clock.png";
-  //Outgoing WebHooksのTOKENをここにコピペ
-  var verify_token = "";
+  var verify_token = "KGQSd2kinKttmBQ8inYADLbj";
   var post_text = e.parameter.text;
   var date_time;
   var state; //出勤か退勤か
@@ -47,16 +44,48 @@ function doPost(e) {
   var app = SlackApp.create(token);
 
   //時間の取得
+  var nowdate = Date.now();
   date_time = checkDate();
 
   var num = Math.floor(Math.random() * 5 + 1);
 
+  var beforestate = getBeforeState();
+
   if (post_text.match(/出勤/)) {
-    state = 1;
-    var text = "今日も１日頑張ろう!";
+    if (beforestate == "出勤") {
+      state = 0;
+      var text = "まだ退勤してないよ!";
+
+      //ボットからのコメント
+      var message = e.parameter.user_name + "は" + text + "\n";
+      app.postMessage(e.parameter.channel_id, message);
+
+    } else {
+      state = 1;
+      var text = "今日も１日頑張ろう!";
+
+      //ボットからのコメント
+      var message = e.parameter.user_name + "、" + text + "\n" + date_time;
+      app.postMessage(e.parameter.channel_id, message);
+    }
   } else if (post_text.match(/退勤/)) {
-    state = 2;
-    var text = "お疲れさまです！";
+    if (beforestate == "退勤") {
+      state = 0;
+      var text = "出勤してないよ!";
+
+      //ボットからのコメント
+      var message = e.parameter.user_name + "は" + text + "\n";
+      app.postMessage(e.parameter.channel_id, message);
+
+    } else {
+      state = 2;
+      var text = "お疲れさまです！";
+
+      //ボットからのコメント
+      var sum = getBeforeDate(nowdate);
+      var message = e.parameter.user_name + "、" + text + "\n" + date_time + "\n" + "合計時間: " + sum + "分";
+      app.postMessage(e.parameter.channel_id, message);
+    }
   }
 
   //勤怠システムに書き込む
@@ -65,7 +94,8 @@ function doPost(e) {
     var date_time = checkDate();
 
     var postdata = {
-      dt: date_time, //時間
+      dt: date_time, //日付
+      dcode: nowdate, //時間
       userName: e.parameter.user_name, //ユーザー
       state: state
     };
@@ -78,24 +108,19 @@ function doPost(e) {
       error_text = "";
     }
   }
-
-  //ボットからのコメント
-  var message = e.parameter.user_name + "、" + text + "\n" + date_time;
-  app.postMessage(e.parameter.channel_id, message);
-
 }
 
 //スプレに記載
 function getAttendance(e) {
-  // var ss = SpreadsheetApp.openByUrl('スプレッドシートのURL');
-  var ss = SpreadsheetApp.openByUrl('');
+  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1x20Ehlq7Pu3XZhA0mOv9UbIQ4NYE3aceKRzDFLvJNqc/edit?usp=sharing');
   var sheet = ss.getSheets()[0];
 
   //最終列の取得
   var lastRow = sheet.getLastRow();
-  var id = lastRow;
-  //時間
+  var id = lastRow
   var entrytime = e.dt
+  //時間
+  var time = e.dcode
   //ユーザー名
   var name = e.userName;
   //出勤か退勤か
@@ -104,20 +129,47 @@ function getAttendance(e) {
 
   if (state == 1) {
     state = "出勤";
+    if (!isError) {
+      // データ入力
+      sheet.appendRow([id, name, entrytime, time, state]);
+      return (1);
+    } else {
+      return (2);
+    }
   }
   if (state == 2) {
     state = "退勤";
+    var sum = getBeforeDate(time);
+    if (!isError) {
+      // データ入力
+      sheet.appendRow([id, name, entrytime, time, state, sum]);
+      return (1);
+    } else {
+      return (2);
+    }
   }
   if (state == 0) {
     isError = true;
   }
+}
 
-  if (!isError) {
-    // データ入力
-    sheet.appendRow([id, name, entrytime, state]);
-    return (1);
-  } else {
-    return (2);
-  }
+function getBeforeDate(time) {
+  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1x20Ehlq7Pu3XZhA0mOv9UbIQ4NYE3aceKRzDFLvJNqc/edit?usp=sharing');
+  var sheet = ss.getSheets()[0];
+  //最終列の取得
+  var lastRow = sheet.getLastRow();
+  // 前回の時間を取得
+  var beforetime = sheet.getRange(lastRow, 4).getValue();
+  var sum = (time - beforetime) / 60000;
+  return sum;
+}
 
+function getBeforeState() {
+  var ss = SpreadsheetApp.openByUrl('https://docs.google.com/spreadsheets/d/1x20Ehlq7Pu3XZhA0mOv9UbIQ4NYE3aceKRzDFLvJNqc/edit?usp=sharing');
+  var sheet = ss.getSheets()[0];
+  //最終列の取得
+  var lastRow = sheet.getLastRow();
+  // 出退勤状況を取得
+  var state = sheet.getRange(lastRow, 5).getValue();
+  return state;
 }
